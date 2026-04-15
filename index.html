@@ -15,6 +15,7 @@
       --danger:rgba(255,80,80,.25);
     }
 
+    /* No scroll anywhere */
     html, body {
       height: 100%;
       margin: 0;
@@ -28,6 +29,7 @@
       user-select: none;
     }
 
+    /* Main app container: fixed to viewport */
     #app {
       height: 100vh;
       width: 100vw;
@@ -37,6 +39,7 @@
       box-sizing: border-box;
     }
 
+    /* Portrait blocker */
     #rotateOverlay{
       position: fixed;
       inset: 0;
@@ -65,6 +68,7 @@
       #rotateOverlay{ display: flex; }
     }
 
+    /* Screens */
     .screen {
       flex: 1;
       display: none;
@@ -74,20 +78,17 @@
     }
     .screen.active { display: flex; }
 
+    /* Top bar on screens after Screen 1 */
     .topbar{
       display: flex;
       align-items: center;
-      justify-content: space-between;
+      justify-content: flex-end;
       padding: 14px 18px;
       border: 1px solid var(--border);
       border-radius: 14px;
     }
-    .topbar .left{
-      font-size: 18px;
-      color: var(--muted);
-      letter-spacing: .2px;
-    }
 
+    /* Center content */
     .center {
       flex: 1;
       display: flex;
@@ -133,7 +134,7 @@
       font-size: 18px;
       letter-spacing: .3px;
       cursor: pointer;
-      min-width: 140px;
+      min-width: 150px;
     }
     button:hover{ background: var(--btnHover); }
     button:active{ transform: translateY(1px); }
@@ -148,18 +149,49 @@
       border-color: rgba(255,80,80,.45);
     }
 
-    select{
+    /* iOS-like “wheel” feel for selector (best-effort on Safari) */
+    .pickerWrap{
+      position: relative;
       width: min(420px, 80vw);
+    }
+    select{
+      width: 100%;
       background: #000;
       color: #fff;
       border: 1px solid var(--border);
-      border-radius: 14px;
-      padding: 14px 16px;
-      font-size: 20px;
+      border-radius: 18px;
+      padding: 16px 16px;
+      font-size: 22px;
       text-align: center;
       outline: none;
+      -webkit-appearance: none;
+      appearance: none;
+    }
+    /* Visual “highlight band” like iOS picker */
+    .pickerBand{
+      pointer-events: none;
+      position: absolute;
+      left: 10px;
+      right: 10px;
+      top: 50%;
+      transform: translateY(-50%);
+      height: 44px;
+      border: 1px solid rgba(255,255,255,.20);
+      border-radius: 14px;
+      background: rgba(255,255,255,.06);
+    }
+    /* Small caret */
+    .pickerCaret{
+      pointer-events: none;
+      position: absolute;
+      right: 16px;
+      top: 50%;
+      transform: translateY(-50%);
+      color: rgba(255,255,255,.55);
+      font-size: 18px;
     }
 
+    /* Results list */
     .results {
       display: flex;
       flex-direction: column;
@@ -183,6 +215,7 @@
       margin-top: 10px;
     }
 
+    /* Reset confirmation modal */
     #modalBackdrop{
       position: fixed;
       inset: 0;
@@ -220,9 +253,10 @@
       gap: 10px;
     }
 
-    /* REROLL button hidden until we have results */
+    /* Randomizer/Reroll visibility rules */
     #btnReroll { display: none; }
     #btnReroll.show { display: inline-block; }
+    #btnRandomize.hide { display: none; }
   </style>
 </head>
 
@@ -252,27 +286,28 @@
       <div class="center">
         <h1>NÚMERO DE JUGADORES</h1>
 
-        <select id="playersSelect" aria-label="Número de jugadores">
-          <option value="1">1</option>
-          <option value="2">2</option>
-          <option value="3" selected>3</option>
-          <option value="4">4</option>
-          <option value="5">5</option>
-          <option value="6">6</option>
-        </select>
+        <div class="pickerWrap" aria-label="Selector de jugadores">
+          <select id="playersSelect">
+            <option value="1">1</option>
+            <option value="2">2</option>
+            <option value="3" selected>3</option>
+            <option value="4">4</option>
+            <option value="5">5</option>
+            <option value="6">6</option>
+          </select>
+          <div class="pickerBand"></div>
+          <div class="pickerCaret">▾</div>
+        </div>
 
         <div class="controlsRow">
           <button id="btnContinue">CONTINUAR</button>
         </div>
-
-        <div class="muted">Landscape • No scroll • Black/white functional UI</div>
       </div>
     </div>
 
     <!-- SCREEN 2: RANDOMIZER -->
     <div id="screenRandomizer" class="screen">
       <div class="topbar">
-        <div class="left" id="playersLabel">Players: 3</div>
         <button id="btnReset" class="small danger">RESET</button>
       </div>
 
@@ -288,7 +323,7 @@
           <button id="btnBack">BACK</button>
           <button id="btnRandomize">RANDOMIZER</button>
           <button id="btnReroll">REROLL</button>
-          <button id="btnSkip">SKIP</button>
+          <button id="btnContinue2">CONTINUAR</button>
         </div>
       </div>
     </div>
@@ -296,7 +331,6 @@
     <!-- SCREEN 3: PLACEHOLDER -->
     <div id="screenNext" class="screen">
       <div class="topbar">
-        <div class="left" id="playersLabel2">Players: 3</div>
         <button id="btnReset2" class="small danger">RESET</button>
       </div>
 
@@ -320,6 +354,9 @@
   </div>
 
   <script>
+    /***********************
+     * DATA
+     ***********************/
     const BOARDS = ["Board A","Board B","Board C","Board D","Board E","Board F"];
 
     const SPIRITS_AND_ASPECTS = [
@@ -393,6 +430,9 @@
       "Wounded Waters Bleeding"
     ];
 
+    /***********************
+     * RANDOMNESS (crypto) to avoid obvious patterns
+     ***********************/
     function cryptoInt(maxExclusive){
       const arr = new Uint32Array(1);
       const limit = Math.floor(0xFFFFFFFF / maxExclusive) * maxExclusive;
@@ -402,7 +442,6 @@
         if(x < limit) return x % maxExclusive;
       }
     }
-
     function shuffleCrypto(array){
       const a = array.slice();
       for(let i = a.length - 1; i > 0; i--){
@@ -412,6 +451,11 @@
       return a;
     }
 
+    /***********************
+     * SPIRIT GROUPING:
+     * If one spirit is chosen, all aspects are excluded.
+     * Group by base before " - ", then pick 1 random variant.
+     ***********************/
     function buildSpiritGroups(list){
       const map = new Map();
       for(const item of list){
@@ -429,7 +473,14 @@
       return variants.length ? variants[cryptoInt(variants.length)] : baseSpirit;
     }
 
-    const state = { players: 3, assignments: [] };
+    /***********************
+     * APP STATE + NAV
+     ***********************/
+    const state = {
+      players: 3,
+      assignments: [],
+      hasRolledOnce: false
+    };
 
     const screenPlayers    = document.getElementById("screenPlayers");
     const screenRandomizer = document.getElementById("screenRandomizer");
@@ -439,45 +490,60 @@
       screenPlayers.classList.remove("active");
       screenRandomizer.classList.remove("active");
       screenNext.classList.remove("active");
+
       if(name === "players") screenPlayers.classList.add("active");
       if(name === "randomizer") screenRandomizer.classList.add("active");
       if(name === "next") screenNext.classList.add("active");
     }
 
-    function updateTopLabels(){
-      document.getElementById("playersLabel").textContent  = `Players: ${state.players}`;
-      document.getElementById("playersLabel2").textContent = `Players: ${state.players}`;
-    }
-
+    /***********************
+     * RENDER RESULTS
+     ***********************/
     const resultsEl = document.getElementById("results");
     const hintEl = document.getElementById("resultsHint");
+    const btnRandomize = document.getElementById("btnRandomize");
     const btnReroll = document.getElementById("btnReroll");
+
+    function syncButtons(){
+      if(state.hasRolledOnce){
+        btnRandomize.classList.add("hide");
+        btnReroll.classList.add("show");
+        hintEl.textContent = ""; // optional: remove hint after first roll
+      } else {
+        btnRandomize.classList.remove("hide");
+        btnReroll.classList.remove("show");
+      }
+    }
 
     function renderResults(){
       resultsEl.innerHTML = "";
       if(state.assignments.length === 0){
         hintEl.style.display = "block";
-        btnReroll.classList.remove("show");  // hide reroll until first result
+        hintEl.textContent = "Tap RANDOMIZER to generate assignments.";
         for(let i=0;i<state.players;i++){
           const line = document.createElement("div");
           line.className = "resultLine";
           line.textContent = "Board —: —";
           resultsEl.appendChild(line);
         }
-        return;
+      } else {
+        hintEl.style.display = "none";
+        for(const lineText of state.assignments){
+          const line = document.createElement("div");
+          line.className = "resultLine";
+          line.textContent = lineText;
+          resultsEl.appendChild(line);
+        }
       }
-      hintEl.style.display = "none";
-      btnReroll.classList.add("show"); // show reroll once we have results
-      for(const lineText of state.assignments){
-        const line = document.createElement("div");
-        line.className = "resultLine";
-        line.textContent = lineText;
-        resultsEl.appendChild(line);
-      }
+      syncButtons();
     }
 
+    /***********************
+     * RANDOMIZE (core logic)
+     ***********************/
     function randomizeAssignments(){
       const n = state.players;
+
       if(BOARDS.length < n){
         alert(`Not enough boards (${BOARDS.length}) for ${n} players.`);
         return;
@@ -488,13 +554,19 @@
       }
 
       const boardsPicked = shuffleCrypto(BOARDS).slice(0, n);
+
+      // Pick N distinct base spirits, 1 variant each
       const basesPicked  = shuffleCrypto(SPIRIT_BASES).slice(0, n);
       const spiritsPicked = basesPicked.map(base => pickRandomVariant(base));
 
       state.assignments = boardsPicked.map((b, i) => `${b}: ${spiritsPicked[i]}`);
+      state.hasRolledOnce = true;
       renderResults();
     }
 
+    /***********************
+     * RESET (2 clicks via modal)
+     ***********************/
     const modalBackdrop = document.getElementById("modalBackdrop");
     const btnCancelReset = document.getElementById("btnCancelReset");
     const btnConfirmReset = document.getElementById("btnConfirmReset");
@@ -511,6 +583,7 @@
       closeResetModal();
       state.players = parseInt(document.getElementById("playersSelect").value, 10) || 3;
       state.assignments = [];
+      state.hasRolledOnce = false;
       showScreen("players");
     }
 
@@ -520,6 +593,9 @@
       if(e.target === modalBackdrop) closeResetModal();
     });
 
+    /***********************
+     * WIRE UI
+     ***********************/
     const playersSelect = document.getElementById("playersSelect");
     playersSelect.addEventListener("change", () => {
       state.players = parseInt(playersSelect.value, 10);
@@ -527,8 +603,8 @@
 
     document.getElementById("btnContinue").addEventListener("click", () => {
       state.players = parseInt(playersSelect.value, 10) || 3;
-      updateTopLabels();
       state.assignments = [];
+      state.hasRolledOnce = false;
       showScreen("randomizer");
       renderResults();
     });
@@ -537,13 +613,11 @@
       showScreen("players");
     });
 
-    document.getElementById("btnRandomize").addEventListener("click", randomizeAssignments);
-
-    // NEW: REROLL does the same as randomize, but only visible after first roll
+    btnRandomize.addEventListener("click", randomizeAssignments);
     btnReroll.addEventListener("click", randomizeAssignments);
 
-    document.getElementById("btnSkip").addEventListener("click", () => {
-      updateTopLabels();
+    // SKIP -> CONTINUAR
+    document.getElementById("btnContinue2").addEventListener("click", () => {
       showScreen("next");
     });
 
@@ -551,10 +625,11 @@
       showScreen("randomizer");
     });
 
+    // Reset buttons
     document.getElementById("btnReset").addEventListener("click", openResetModal);
     document.getElementById("btnReset2").addEventListener("click", openResetModal);
 
-    updateTopLabels();
+    // Initial render
     renderResults();
   </script>
 </body>
