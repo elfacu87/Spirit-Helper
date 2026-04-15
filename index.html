@@ -561,10 +561,10 @@
     btnRandomize.addEventListener("click", randomizeAssignments);
     btnReroll.addEventListener("click", randomizeAssignments);
 
-    // CONTINUAR ahora navega a tool2.html (guardando estado antes)
+    // CONTINUAR ahora navega a adv_choose.html (guardando estado antes)
     document.getElementById("btnContinue2").addEventListener("click", () => {
       saveStateToStorage();
-      window.location.href = "./tool2.html";
+      window.location.href = "./adv_choose.html";
     });
 
     document.getElementById("btnReset").addEventListener("click", openResetModal);
