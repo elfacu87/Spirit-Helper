@@ -155,19 +155,13 @@
       overflow:hidden;
       text-overflow:ellipsis;
     }
-    .muted{
-      color:var(--muted);
-      font-size:16px;
-      text-align:center;
-      margin-top:10px;
-    }
 
     /* Reset floating button */
     #resetFloating{
-      position: absolute;
-      top: 14px;
-      right: 14px;
-      z-index: 10;
+      position:absolute;
+      top:14px;
+      right:14px;
+      z-index:10;
     }
 
     /* Modal */
@@ -211,18 +205,16 @@
   </div>
 
   <div id="modalBackdrop" aria-hidden="true">
-    <div id="modal" role="dialog" aria-modal="true">
-      <h2>Resetear al inicio?</h2>
-      <p>Esto borra el sorteo actual y vuelve a “NÚMERO DE JUGADORES”.</p>
-      <div class="modalRow">
-        <button id="btnCancelReset" class="small">CANCEL</button>
-        <button id="btnConfirmReset" class="small danger">YES, RESET</button>
-      </div>
+  <div id="modal" role="dialog" aria-modal="true">
+    <h2>Resetear al inicio?</h2>
+    <div class="modalRow">
+      <button id="btnCancelReset" class="small">CANCELAR</button>
+      <button id="btnConfirmReset" class="small danger">RESETEAR</button>
     </div>
   </div>
+</div>
 
   <div id="app">
-    <!-- RESET visible solo fuera de la pantalla 1 -->
     <div id="resetFloating" style="display:none;">
       <button id="btnReset" class="small danger">RESET</button>
     </div>
@@ -254,7 +246,6 @@
 
         <div class="card">
           <div class="results" id="results"></div>
-          <div class="muted" id="resultsHint">Tap RANDOMIZER to generate assignments.</div>
         </div>
 
         <div class="controlsRow">
@@ -268,6 +259,36 @@
   </div>
 
   <script>
+    /***********************
+     * STORAGE KEYS
+     ***********************/
+    const STORAGE_KEY = "si_helper_state_v1";
+
+    function saveStateToStorage(){
+      const payload = {
+        players: state.players,
+        assignments: state.assignments,
+        hasRolledOnce: state.hasRolledOnce
+      };
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(payload));
+    }
+
+    function loadStateFromStorage(){
+      try{
+        const raw = localStorage.getItem(STORAGE_KEY);
+        if(!raw) return null;
+        const parsed = JSON.parse(raw);
+        if(!parsed || typeof parsed !== "object") return null;
+        return parsed;
+      }catch(e){
+        return null;
+      }
+    }
+
+    function clearStorage(){
+      localStorage.removeItem(STORAGE_KEY);
+    }
+
     /***********************
      * DATA
      ***********************/
@@ -416,7 +437,6 @@
      * RESULTS + BUTTONS
      ***********************/
     const resultsEl = document.getElementById("results");
-    const hintEl = document.getElementById("resultsHint");
     const btnRandomize = document.getElementById("btnRandomize");
     const btnReroll = document.getElementById("btnReroll");
 
@@ -433,8 +453,7 @@
     function renderResults(){
       resultsEl.innerHTML = "";
       if(state.assignments.length === 0){
-        hintEl.style.display = "block";
-        hintEl.textContent = "Tap RANDOMIZER to generate assignments.";
+        // mostramos placeholders sin texto gris
         for(let i=0;i<state.players;i++){
           const line = document.createElement("div");
           line.className = "resultLine";
@@ -442,7 +461,6 @@
           resultsEl.appendChild(line);
         }
       } else {
-        hintEl.style.display = "none";
         for(const lineText of state.assignments){
           const line = document.createElement("div");
           line.className = "resultLine";
@@ -471,6 +489,8 @@
 
       state.assignments = boardsPicked.map((b, i) => `${b}: ${spiritsPicked[i]}`);
       state.hasRolledOnce = true;
+
+      saveStateToStorage();
       renderResults();
     }
 
@@ -491,11 +511,18 @@
     }
     function doResetToStart(){
       closeResetModal();
+
+      // reset in-memory
       state.players = parseInt(document.getElementById("playersSelect").value, 10) || 3;
       state.assignments = [];
       state.hasRolledOnce = false;
+
+      // reset persisted
+      clearStorage();
+
       // limpiar hash si venimos de #randomizer
       history.replaceState(null, "", window.location.pathname);
+
       showScreen("players");
       renderResults();
     }
@@ -513,12 +540,15 @@
 
     playersSelect.addEventListener("change", () => {
       state.players = parseInt(playersSelect.value, 10);
+      // guardamos players también, por si vuelven luego
+      saveStateToStorage();
     });
 
     document.getElementById("btnContinue").addEventListener("click", () => {
       state.players = parseInt(playersSelect.value, 10) || 3;
       state.assignments = [];
       state.hasRolledOnce = false;
+      saveStateToStorage();
       showScreen("randomizer");
       renderResults();
     });
@@ -531,26 +561,39 @@
     btnRandomize.addEventListener("click", randomizeAssignments);
     btnReroll.addEventListener("click", randomizeAssignments);
 
-    // CONTINUAR ahora navega a tool2.html
+    // CONTINUAR ahora navega a tool2.html (guardando estado antes)
     document.getElementById("btnContinue2").addEventListener("click", () => {
+      saveStateToStorage();
       window.location.href = "./tool2.html";
     });
 
     document.getElementById("btnReset").addEventListener("click", openResetModal);
 
     /***********************
-     * BOOT: if URL has #randomizer, start there
+     * BOOT:
+     * - Si hay estado guardado, lo restauramos
+     * - Si URL es #randomizer, abrimos Randomizer
      ***********************/
     function boot(){
-      if(window.location.hash === "#randomizer"){
-        // set players from dropdown (default 3) and go to randomizer
+      const saved = loadStateFromStorage();
+      if(saved){
+        if(typeof saved.players === "number") state.players = saved.players;
+        if(Array.isArray(saved.assignments)) state.assignments = saved.assignments;
+        if(typeof saved.hasRolledOnce === "boolean") state.hasRolledOnce = saved.hasRolledOnce;
+
+        // sincronizar dropdown con players
+        playersSelect.value = String(state.players);
+      } else {
+        // default desde el select (3)
         state.players = parseInt(playersSelect.value, 10) || 3;
+      }
+
+      if(window.location.hash === "#randomizer"){
         showScreen("randomizer");
-        renderResults();
       } else {
         showScreen("players");
-        renderResults();
       }
+      renderResults();
     }
 
     boot();
