@@ -15,248 +15,191 @@
       --danger:rgba(255,80,80,.25);
     }
 
-    /* No scroll anywhere */
-    html, body {
-      height: 100%;
-      margin: 0;
-      background: var(--bg);
-      color: var(--fg);
-      overflow: hidden;
-      overscroll-behavior: none;
-      -webkit-text-size-adjust: 100%;
-      font-family: -apple-system, system-ui, Segoe UI, Roboto, Helvetica, Arial, sans-serif;
+    html, body{
+      height:100%;
+      margin:0;
+      background:var(--bg);
+      color:var(--fg);
+      overflow:hidden;
+      overscroll-behavior:none;
+      -webkit-text-size-adjust:100%;
+      font-family:-apple-system, system-ui, Segoe UI, Roboto, Helvetica, Arial, sans-serif;
       touch-action: manipulation;
-      user-select: none;
+      user-select:none;
     }
 
-    /* Main app container: fixed to viewport */
-    #app {
-      height: 100vh;
-      width: 100vw;
-      display: flex;
-      flex-direction: column;
+    #app{
+      height:100vh;
+      width:100vw;
+      display:flex;
+      flex-direction:column;
       padding: env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left);
-      box-sizing: border-box;
+      box-sizing:border-box;
+      position: relative;
     }
 
     /* Portrait blocker */
     #rotateOverlay{
-      position: fixed;
-      inset: 0;
-      background: #000;
-      color: #fff;
-      display: none;
-      align-items: center;
-      justify-content: center;
-      text-align: center;
-      padding: 24px;
-      z-index: 50;
-      box-sizing: border-box;
+      position:fixed;
+      inset:0;
+      background:#000;
+      color:#fff;
+      display:none;
+      align-items:center;
+      justify-content:center;
+      text-align:center;
+      padding:24px;
+      z-index:50;
+      box-sizing:border-box;
     }
-    #rotateOverlay h1{
-      margin: 0 0 8px 0;
-      font-size: 28px;
-      letter-spacing: .5px;
-    }
-    #rotateOverlay p{
-      margin: 0;
-      color: var(--muted);
-      font-size: 18px;
-      line-height: 1.35;
-    }
+    #rotateOverlay h1{ margin:0 0 8px 0; font-size:28px; letter-spacing:.5px; }
+    #rotateOverlay p{ margin:0; color:var(--muted); font-size:18px; line-height:1.35; }
     @media (orientation: portrait){
-      #rotateOverlay{ display: flex; }
+      #rotateOverlay{ display:flex; }
     }
 
-    /* Screens */
-    .screen {
-      flex: 1;
-      display: none;
-      flex-direction: column;
-      gap: 18px;
-      box-sizing: border-box;
+    .screen{
+      flex:1;
+      display:none;
+      flex-direction:column;
+      gap:18px;
+      box-sizing:border-box;
     }
-    .screen.active { display: flex; }
+    .screen.active{ display:flex; }
 
-    /* Top bar on screens after Screen 1 */
-    .topbar{
-      display: flex;
-      align-items: center;
-      justify-content: flex-end;
-      padding: 14px 18px;
-      border: 1px solid var(--border);
-      border-radius: 14px;
-    }
-
-    /* Center content */
-    .center {
-      flex: 1;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      gap: 18px;
-      padding: 18px;
-      box-sizing: border-box;
+    .center{
+      flex:1;
+      display:flex;
+      flex-direction:column;
+      align-items:center;
+      justify-content:center;
+      gap:18px;
+      padding:18px;
+      box-sizing:border-box;
     }
 
-    h1 {
-      margin: 0;
-      font-size: 34px;
-      letter-spacing: .6px;
-      text-align: center;
+    h1{
+      margin:0;
+      font-size:34px;
+      letter-spacing:.6px;
+      text-align:center;
     }
 
-    .card {
-      width: min(900px, 92vw);
-      border: 1px solid var(--border);
-      border-radius: 16px;
-      padding: 18px;
-      box-sizing: border-box;
+    .card{
+      width:min(900px, 92vw);
+      border:1px solid var(--border);
+      border-radius:16px;
+      padding:18px;
+      box-sizing:border-box;
     }
 
     .controlsRow{
-      display: flex;
-      gap: 14px;
-      width: min(900px, 92vw);
-      justify-content: center;
-      align-items: center;
-      flex-wrap: nowrap;
+      display:flex;
+      gap:14px;
+      width:min(900px, 92vw);
+      justify-content:center;
+      align-items:center;
+      flex-wrap:nowrap;
     }
 
     button{
-      appearance: none;
-      border: 1px solid var(--border);
-      background: var(--btn);
-      color: var(--fg);
-      padding: 14px 18px;
-      border-radius: 14px;
-      font-size: 18px;
-      letter-spacing: .3px;
-      cursor: pointer;
-      min-width: 150px;
+      appearance:none;
+      border:1px solid var(--border);
+      background:var(--btn);
+      color:var(--fg);
+      padding:14px 18px;
+      border-radius:14px;
+      font-size:18px;
+      letter-spacing:.3px;
+      cursor:pointer;
+      min-width:150px;
     }
-    button:hover{ background: var(--btnHover); }
-    button:active{ transform: translateY(1px); }
+    button:hover{ background:var(--btnHover); }
+    button:active{ transform:translateY(1px); }
     button.small{
-      min-width: auto;
-      padding: 10px 14px;
-      font-size: 16px;
-      border-radius: 12px;
+      min-width:auto;
+      padding:10px 14px;
+      font-size:16px;
+      border-radius:12px;
     }
     button.danger{
-      background: var(--danger);
+      background:var(--danger);
       border-color: rgba(255,80,80,.45);
     }
 
-    /* iOS-like “wheel” feel for selector (best-effort on Safari) */
-    .pickerWrap{
-      position: relative;
-      width: min(420px, 80vw);
-    }
+    /* Back to simple dropdown */
     select{
-      width: 100%;
-      background: #000;
-      color: #fff;
-      border: 1px solid var(--border);
-      border-radius: 18px;
-      padding: 16px 16px;
-      font-size: 22px;
-      text-align: center;
-      outline: none;
-      -webkit-appearance: none;
-      appearance: none;
-    }
-    /* Visual “highlight band” like iOS picker */
-    .pickerBand{
-      pointer-events: none;
-      position: absolute;
-      left: 10px;
-      right: 10px;
-      top: 50%;
-      transform: translateY(-50%);
-      height: 44px;
-      border: 1px solid rgba(255,255,255,.20);
-      border-radius: 14px;
-      background: rgba(255,255,255,.06);
-    }
-    /* Small caret */
-    .pickerCaret{
-      pointer-events: none;
-      position: absolute;
-      right: 16px;
-      top: 50%;
-      transform: translateY(-50%);
-      color: rgba(255,255,255,.55);
-      font-size: 18px;
+      width:min(420px, 80vw);
+      background:#000;
+      color:#fff;
+      border:1px solid var(--border);
+      border-radius:14px;
+      padding:14px 16px;
+      font-size:20px;
+      text-align:center;
+      outline:none;
     }
 
-    /* Results list */
-    .results {
-      display: flex;
-      flex-direction: column;
-      gap: 12px;
-      font-size: 22px;
-      line-height: 1.2;
+    .results{
+      display:flex;
+      flex-direction:column;
+      gap:12px;
+      font-size:22px;
+      line-height:1.2;
     }
     .resultLine{
-      padding: 12px 14px;
-      border: 1px solid var(--border);
-      border-radius: 14px;
-      background: rgba(255,255,255,.06);
-      white-space: nowrap;
-      overflow: hidden;
-      text-overflow: ellipsis;
+      padding:12px 14px;
+      border:1px solid var(--border);
+      border-radius:14px;
+      background:rgba(255,255,255,.06);
+      white-space:nowrap;
+      overflow:hidden;
+      text-overflow:ellipsis;
     }
     .muted{
-      color: var(--muted);
-      font-size: 16px;
-      text-align: center;
-      margin-top: 10px;
+      color:var(--muted);
+      font-size:16px;
+      text-align:center;
+      margin-top:10px;
     }
 
-    /* Reset confirmation modal */
+    /* Reset: only the button, no full-width bar */
+    #resetFloating{
+      position: absolute;
+      top: 14px;
+      right: 14px;
+      z-index: 10;
+    }
+
+    /* Modal */
     #modalBackdrop{
-      position: fixed;
-      inset: 0;
-      background: rgba(0,0,0,.6);
-      display: none;
-      align-items: center;
-      justify-content: center;
-      padding: 18px;
-      box-sizing: border-box;
-      z-index: 40;
+      position:fixed;
+      inset:0;
+      background:rgba(0,0,0,.6);
+      display:none;
+      align-items:center;
+      justify-content:center;
+      padding:18px;
+      box-sizing:border-box;
+      z-index:40;
     }
-    #modalBackdrop.show{ display: flex; }
+    #modalBackdrop.show{ display:flex; }
     #modal{
-      width: min(520px, 92vw);
-      border: 1px solid var(--border);
-      border-radius: 16px;
-      background: #000;
-      padding: 18px;
-      box-sizing: border-box;
+      width:min(520px, 92vw);
+      border:1px solid var(--border);
+      border-radius:16px;
+      background:#000;
+      padding:18px;
+      box-sizing:border-box;
     }
-    #modal h2{
-      margin: 0 0 10px 0;
-      font-size: 22px;
-      letter-spacing: .2px;
-    }
-    #modal p{
-      margin: 0 0 16px 0;
-      color: var(--muted);
-      font-size: 16px;
-      line-height: 1.35;
-    }
-    #modal .modalRow{
-      display: flex;
-      justify-content: flex-end;
-      gap: 10px;
-    }
+    #modal h2{ margin:0 0 10px 0; font-size:22px; letter-spacing:.2px; }
+    #modal p{ margin:0 0 16px 0; color:var(--muted); font-size:16px; line-height:1.35; }
+    #modal .modalRow{ display:flex; justify-content:flex-end; gap:10px; }
 
-    /* Randomizer/Reroll visibility rules */
-    #btnReroll { display: none; }
-    #btnReroll.show { display: inline-block; }
-    #btnRandomize.hide { display: none; }
+    /* Show only REROLL after first roll */
+    #btnReroll { display:none; }
+    #btnReroll.show { display:inline-block; }
+    #btnRandomize.hide { display:none; }
   </style>
 </head>
 
@@ -281,23 +224,24 @@
 
   <div id="app">
 
-    <!-- SCREEN 1: PLAYERS -->
+    <!-- This reset button will ONLY be shown after Screen 1 -->
+    <div id="resetFloating" style="display:none;">
+      <button id="btnReset" class="small danger">RESET</button>
+    </div>
+
+    <!-- SCREEN 1 -->
     <div id="screenPlayers" class="screen active">
       <div class="center">
         <h1>NÚMERO DE JUGADORES</h1>
 
-        <div class="pickerWrap" aria-label="Selector de jugadores">
-          <select id="playersSelect">
-            <option value="1">1</option>
-            <option value="2">2</option>
-            <option value="3" selected>3</option>
-            <option value="4">4</option>
-            <option value="5">5</option>
-            <option value="6">6</option>
-          </select>
-          <div class="pickerBand"></div>
-          <div class="pickerCaret">▾</div>
-        </div>
+        <select id="playersSelect" aria-label="Número de jugadores">
+          <option value="1">1</option>
+          <option value="2">2</option>
+          <option value="3" selected>3</option>
+          <option value="4">4</option>
+          <option value="5">5</option>
+          <option value="6">6</option>
+        </select>
 
         <div class="controlsRow">
           <button id="btnContinue">CONTINUAR</button>
@@ -305,12 +249,8 @@
       </div>
     </div>
 
-    <!-- SCREEN 2: RANDOMIZER -->
+    <!-- SCREEN 2 -->
     <div id="screenRandomizer" class="screen">
-      <div class="topbar">
-        <button id="btnReset" class="small danger">RESET</button>
-      </div>
-
       <div class="center">
         <h1>RANDOMIZER</h1>
 
@@ -328,21 +268,13 @@
       </div>
     </div>
 
-    <!-- SCREEN 3: PLACEHOLDER -->
+    <!-- SCREEN 3 -->
     <div id="screenNext" class="screen">
-      <div class="topbar">
-        <button id="btnReset2" class="small danger">RESET</button>
-      </div>
-
       <div class="center">
         <h1>Next</h1>
         <div class="card">
-          <div style="font-size:22px; text-align:center;">
-            Coming soon 👌
-          </div>
-          <div class="muted" style="margin-top:10px;">
-            We’ll add more Spirit Island helpers here later.
-          </div>
+          <div style="font-size:22px; text-align:center;">Coming soon 👌</div>
+          <div class="muted" style="margin-top:10px;">We’ll add more Spirit Island helpers here later.</div>
         </div>
 
         <div class="controlsRow">
@@ -431,7 +363,7 @@
     ];
 
     /***********************
-     * RANDOMNESS (crypto) to avoid obvious patterns
+     * CRYPTO RANDOM
      ***********************/
     function cryptoInt(maxExclusive){
       const arr = new Uint32Array(1);
@@ -452,9 +384,7 @@
     }
 
     /***********************
-     * SPIRIT GROUPING:
-     * If one spirit is chosen, all aspects are excluded.
-     * Group by base before " - ", then pick 1 random variant.
+     * GROUP SPIRITS BY BASE (exclude all aspects once selected)
      ***********************/
     function buildSpiritGroups(list){
       const map = new Map();
@@ -474,7 +404,7 @@
     }
 
     /***********************
-     * APP STATE + NAV
+     * STATE
      ***********************/
     const state = {
       players: 3,
@@ -485,19 +415,29 @@
     const screenPlayers    = document.getElementById("screenPlayers");
     const screenRandomizer = document.getElementById("screenRandomizer");
     const screenNext       = document.getElementById("screenNext");
+    const resetFloating    = document.getElementById("resetFloating");
 
     function showScreen(name){
       screenPlayers.classList.remove("active");
       screenRandomizer.classList.remove("active");
       screenNext.classList.remove("active");
 
-      if(name === "players") screenPlayers.classList.add("active");
-      if(name === "randomizer") screenRandomizer.classList.add("active");
-      if(name === "next") screenNext.classList.add("active");
+      if(name === "players"){
+        screenPlayers.classList.add("active");
+        resetFloating.style.display = "none";   // no reset on first screen
+      }
+      if(name === "randomizer"){
+        screenRandomizer.classList.add("active");
+        resetFloating.style.display = "block";
+      }
+      if(name === "next"){
+        screenNext.classList.add("active");
+        resetFloating.style.display = "block";
+      }
     }
 
     /***********************
-     * RENDER RESULTS
+     * RESULTS RENDER + BUTTONS
      ***********************/
     const resultsEl = document.getElementById("results");
     const hintEl = document.getElementById("resultsHint");
@@ -508,7 +448,6 @@
       if(state.hasRolledOnce){
         btnRandomize.classList.add("hide");
         btnReroll.classList.add("show");
-        hintEl.textContent = ""; // optional: remove hint after first roll
       } else {
         btnRandomize.classList.remove("hide");
         btnReroll.classList.remove("show");
@@ -539,7 +478,7 @@
     }
 
     /***********************
-     * RANDOMIZE (core logic)
+     * RANDOMIZE
      ***********************/
     function randomizeAssignments(){
       const n = state.players;
@@ -554,8 +493,6 @@
       }
 
       const boardsPicked = shuffleCrypto(BOARDS).slice(0, n);
-
-      // Pick N distinct base spirits, 1 variant each
       const basesPicked  = shuffleCrypto(SPIRIT_BASES).slice(0, n);
       const spiritsPicked = basesPicked.map(base => pickRandomVariant(base));
 
@@ -565,7 +502,7 @@
     }
 
     /***********************
-     * RESET (2 clicks via modal)
+     * RESET MODAL (2 clicks)
      ***********************/
     const modalBackdrop = document.getElementById("modalBackdrop");
     const btnCancelReset = document.getElementById("btnCancelReset");
@@ -573,11 +510,11 @@
 
     function openResetModal(){
       modalBackdrop.classList.add("show");
-      modalBackdrop.setAttribute("aria-hidden", "false");
+      modalBackdrop.setAttribute("aria-hidden","false");
     }
     function closeResetModal(){
       modalBackdrop.classList.remove("show");
-      modalBackdrop.setAttribute("aria-hidden", "true");
+      modalBackdrop.setAttribute("aria-hidden","true");
     }
     function doResetToStart(){
       closeResetModal();
@@ -609,27 +546,17 @@
       renderResults();
     });
 
-    document.getElementById("btnBack").addEventListener("click", () => {
-      showScreen("players");
-    });
-
+    document.getElementById("btnBack").addEventListener("click", () => showScreen("players"));
     btnRandomize.addEventListener("click", randomizeAssignments);
     btnReroll.addEventListener("click", randomizeAssignments);
 
-    // SKIP -> CONTINUAR
-    document.getElementById("btnContinue2").addEventListener("click", () => {
-      showScreen("next");
-    });
+    document.getElementById("btnContinue2").addEventListener("click", () => showScreen("next"));
+    document.getElementById("btnBack2").addEventListener("click", () => showScreen("randomizer"));
 
-    document.getElementById("btnBack2").addEventListener("click", () => {
-      showScreen("randomizer");
-    });
-
-    // Reset buttons
     document.getElementById("btnReset").addEventListener("click", openResetModal);
-    document.getElementById("btnReset2").addEventListener("click", openResetModal);
 
-    // Initial render
+    // Initial
+    showScreen("players");
     renderResults();
   </script>
 </body>
