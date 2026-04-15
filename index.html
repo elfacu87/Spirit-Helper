@@ -127,7 +127,6 @@
       border-color: rgba(255,80,80,.45);
     }
 
-    /* Back to simple dropdown */
     select{
       width:min(420px, 80vw);
       background:#000;
@@ -163,7 +162,7 @@
       margin-top:10px;
     }
 
-    /* Reset: only the button, no full-width bar */
+    /* Reset floating button */
     #resetFloating{
       position: absolute;
       top: 14px;
@@ -223,8 +222,7 @@
   </div>
 
   <div id="app">
-
-    <!-- This reset button will ONLY be shown after Screen 1 -->
+    <!-- RESET visible solo fuera de la pantalla 1 -->
     <div id="resetFloating" style="display:none;">
       <button id="btnReset" class="small danger">RESET</button>
     </div>
@@ -267,22 +265,6 @@
         </div>
       </div>
     </div>
-
-    <!-- SCREEN 3 -->
-    <div id="screenNext" class="screen">
-      <div class="center">
-        <h1>Next</h1>
-        <div class="card">
-          <div style="font-size:22px; text-align:center;">Coming soon 👌</div>
-          <div class="muted" style="margin-top:10px;">We’ll add more Spirit Island helpers here later.</div>
-        </div>
-
-        <div class="controlsRow">
-          <button id="btnBack2">BACK</button>
-        </div>
-      </div>
-    </div>
-
   </div>
 
   <script>
@@ -412,32 +394,26 @@
       hasRolledOnce: false
     };
 
-    const screenPlayers    = document.getElementById("screenPlayers");
+    const screenPlayers = document.getElementById("screenPlayers");
     const screenRandomizer = document.getElementById("screenRandomizer");
-    const screenNext       = document.getElementById("screenNext");
-    const resetFloating    = document.getElementById("resetFloating");
+    const resetFloating = document.getElementById("resetFloating");
 
     function showScreen(name){
       screenPlayers.classList.remove("active");
       screenRandomizer.classList.remove("active");
-      screenNext.classList.remove("active");
 
       if(name === "players"){
         screenPlayers.classList.add("active");
-        resetFloating.style.display = "none";   // no reset on first screen
+        resetFloating.style.display = "none";
       }
       if(name === "randomizer"){
         screenRandomizer.classList.add("active");
         resetFloating.style.display = "block";
       }
-      if(name === "next"){
-        screenNext.classList.add("active");
-        resetFloating.style.display = "block";
-      }
     }
 
     /***********************
-     * RESULTS RENDER + BUTTONS
+     * RESULTS + BUTTONS
      ***********************/
     const resultsEl = document.getElementById("results");
     const hintEl = document.getElementById("resultsHint");
@@ -477,9 +453,6 @@
       syncButtons();
     }
 
-    /***********************
-     * RANDOMIZE
-     ***********************/
     function randomizeAssignments(){
       const n = state.players;
 
@@ -521,7 +494,10 @@
       state.players = parseInt(document.getElementById("playersSelect").value, 10) || 3;
       state.assignments = [];
       state.hasRolledOnce = false;
+      // limpiar hash si venimos de #randomizer
+      history.replaceState(null, "", window.location.pathname);
       showScreen("players");
+      renderResults();
     }
 
     btnCancelReset.addEventListener("click", closeResetModal);
@@ -534,6 +510,7 @@
      * WIRE UI
      ***********************/
     const playersSelect = document.getElementById("playersSelect");
+
     playersSelect.addEventListener("change", () => {
       state.players = parseInt(playersSelect.value, 10);
     });
@@ -546,18 +523,37 @@
       renderResults();
     });
 
-    document.getElementById("btnBack").addEventListener("click", () => showScreen("players"));
+    document.getElementById("btnBack").addEventListener("click", () => {
+      history.replaceState(null, "", window.location.pathname);
+      showScreen("players");
+    });
+
     btnRandomize.addEventListener("click", randomizeAssignments);
     btnReroll.addEventListener("click", randomizeAssignments);
 
-    document.getElementById("btnContinue2").addEventListener("click", () => showScreen("next"));
-    document.getElementById("btnBack2").addEventListener("click", () => showScreen("randomizer"));
+    // CONTINUAR ahora navega a tool2.html
+    document.getElementById("btnContinue2").addEventListener("click", () => {
+      window.location.href = "./tool2.html";
+    });
 
     document.getElementById("btnReset").addEventListener("click", openResetModal);
 
-    // Initial
-    showScreen("players");
-    renderResults();
+    /***********************
+     * BOOT: if URL has #randomizer, start there
+     ***********************/
+    function boot(){
+      if(window.location.hash === "#randomizer"){
+        // set players from dropdown (default 3) and go to randomizer
+        state.players = parseInt(playersSelect.value, 10) || 3;
+        showScreen("randomizer");
+        renderResults();
+      } else {
+        showScreen("players");
+        renderResults();
+      }
+    }
+
+    boot();
   </script>
 </body>
 </html>
