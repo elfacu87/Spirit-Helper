@@ -185,8 +185,7 @@
       padding:18px;
       box-sizing:border-box;
     }
-    #modal h2{ margin:0 0 10px 0; font-size:22px; letter-spacing:.2px; }
-    #modal p{ margin:0 0 16px 0; color:var(--muted); font-size:16px; line-height:1.35; }
+    #modal h2{ margin:0 0 12px 0; font-size:22px; letter-spacing:.2px; }
     #modal .modalRow{ display:flex; justify-content:flex-end; gap:10px; }
 
     /* Show only REROLL after first roll */
@@ -205,14 +204,14 @@
   </div>
 
   <div id="modalBackdrop" aria-hidden="true">
-  <div id="modal" role="dialog" aria-modal="true">
-    <h2>Resetear?</h2>
-    <div class="modalRow">
-      <button id="btnCancelReset" class="small">CANCELAR</button>
-      <button id="btnConfirmReset" class="small danger">RESETEAR</button>
+    <div id="modal" role="dialog" aria-modal="true">
+      <h2>Resetear?</h2>
+      <div class="modalRow">
+        <button id="btnCancelReset" class="small">CANCELAR</button>
+        <button id="btnConfirmReset" class="small danger">RESETEAR</button>
+      </div>
     </div>
   </div>
-</div>
 
   <div id="app">
     <div id="resetFloating" style="display:none;">
@@ -260,7 +259,7 @@
 
   <script>
     /***********************
-     * STORAGE KEYS
+     * STORAGE
      ***********************/
     const STORAGE_KEY = "si_helper_state_v1";
 
@@ -453,7 +452,6 @@
     function renderResults(){
       resultsEl.innerHTML = "";
       if(state.assignments.length === 0){
-        // mostramos placeholders sin texto gris
         for(let i=0;i<state.players;i++){
           const line = document.createElement("div");
           line.className = "resultLine";
@@ -495,7 +493,7 @@
     }
 
     /***********************
-     * RESET MODAL (2 clicks)
+     * RESET MODAL
      ***********************/
     const modalBackdrop = document.getElementById("modalBackdrop");
     const btnCancelReset = document.getElementById("btnCancelReset");
@@ -512,15 +510,11 @@
     function doResetToStart(){
       closeResetModal();
 
-      // reset in-memory
       state.players = parseInt(document.getElementById("playersSelect").value, 10) || 3;
       state.assignments = [];
       state.hasRolledOnce = false;
 
-      // reset persisted
       clearStorage();
-
-      // limpiar hash si venimos de #randomizer
       history.replaceState(null, "", window.location.pathname);
 
       showScreen("players");
@@ -540,7 +534,6 @@
 
     playersSelect.addEventListener("change", () => {
       state.players = parseInt(playersSelect.value, 10);
-      // guardamos players también, por si vuelven luego
       saveStateToStorage();
     });
 
@@ -561,7 +554,7 @@
     btnRandomize.addEventListener("click", randomizeAssignments);
     btnReroll.addEventListener("click", randomizeAssignments);
 
-    // CONTINUAR ahora navega a adv_choose.html (guardando estado antes)
+    // CONTINUAR -> adv_choose.html
     document.getElementById("btnContinue2").addEventListener("click", () => {
       saveStateToStorage();
       window.location.href = "./adv_choose.html";
@@ -570,9 +563,7 @@
     document.getElementById("btnReset").addEventListener("click", openResetModal);
 
     /***********************
-     * BOOT:
-     * - Si hay estado guardado, lo restauramos
-     * - Si URL es #randomizer, abrimos Randomizer
+     * BOOT (#randomizer loads randomizer; restore state if exists)
      ***********************/
     function boot(){
       const saved = loadStateFromStorage();
@@ -580,11 +571,8 @@
         if(typeof saved.players === "number") state.players = saved.players;
         if(Array.isArray(saved.assignments)) state.assignments = saved.assignments;
         if(typeof saved.hasRolledOnce === "boolean") state.hasRolledOnce = saved.hasRolledOnce;
-
-        // sincronizar dropdown con players
         playersSelect.value = String(state.players);
       } else {
-        // default desde el select (3)
         state.players = parseInt(playersSelect.value, 10) || 3;
       }
 

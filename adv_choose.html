@@ -1,197 +1,564 @@
 <!doctype html>
-<html lang="en">
+<html lang="es">
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
-  <title>Spirit Island Helper - Tool 2</title>
+  <title>Adversario</title>
   <style>
     :root{
       --bg:#000;
       --fg:#fff;
-      --muted:rgba(255,255,255,.7);
-      --border:rgba(255,255,255,.22);
-      --btn:rgba(255,255,255,.10);
-      --btnHover:rgba(255,255,255,.16);
-      --danger:rgba(255,80,80,.25);
+      --muted:#9aa0a6;
+      --btn:#161616;
+      --btn2:#232323;
+      --danger:#ff3b30;
+      --radius:18px;
     }
-    html, body{
-      height:100%;
+
+    *{ box-sizing:border-box; -webkit-tap-highlight-color: transparent; }
+    html, body{ height:100%; }
+    body{
       margin:0;
       background:var(--bg);
       color:var(--fg);
+      font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+      overflow:hidden; /* sin scroll global */
+    }
+
+    .wrap{
+      height:100vh;
+      padding:16px 18px calc(16px + env(safe-area-inset-bottom));
+      display:flex;
+      flex-direction:column;
+      gap:14px;
+    }
+
+    .topbar{
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:12px;
+    }
+
+    .title{
+      font-size:20px;
+      font-weight:900;
+      letter-spacing:.2px;
+    }
+
+    .actions{
+      display:flex;
+      gap:10px;
+      align-items:center;
+    }
+
+    button{
+      border:0;
+      color:var(--fg);
+      background:var(--btn);
+      padding:10px 14px;
+      border-radius:14px;
+      font-weight:800;
+      font-size:14px;
+      cursor:pointer;
+    }
+    button:active{ transform: scale(0.98); background:var(--btn2); }
+
+    .btn-danger{
+      background: transparent;
+      color: var(--danger);
+      border: 2px solid rgba(255,59,48,.55);
+    }
+    .btn-danger:active{
+      background: rgba(255,59,48,.12);
+    }
+
+    .content{
+      flex:1;
+      min-height:0;
+      display:grid;
+      grid-template-columns: 1.05fr .95fr;
+      gap:16px;
+    }
+
+    /* Panel lista */
+    .panel{
+      background: rgba(255,255,255,.04);
+      border-radius: var(--radius);
+      padding:14px;
+      min-height:0;
+      display:flex;
+      flex-direction:column;
+      gap:12px;
       overflow:hidden;
-      overscroll-behavior:none;
-      -webkit-text-size-adjust:100%;
-      font-family:-apple-system, system-ui, Segoe UI, Roboto, Helvetica, Arial, sans-serif;
-      touch-action: manipulation;
+    }
+
+    .hint{
+      font-size:12px;
+      color:var(--muted);
+      line-height:1.25;
+      font-weight:700;
+    }
+
+    .panelButtons{
+      display:flex;
+      gap:10px;
+      flex-wrap:wrap;
+    }
+
+    .grid{
+      display:grid;
+      grid-template-columns: 1fr 1fr;
+      gap:10px;
+      overflow:auto;               /* scroll interno si hiciera falta */
+      padding-right:4px;
+      -webkit-overflow-scrolling: touch;
+    }
+
+    .opt{
+      background: rgba(255,255,255,.06);
+      border-radius: 16px;
+      padding:12px 12px;
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:10px;
       user-select:none;
     }
-    #app{
-      height:100vh;
-      width:100vw;
-      display:flex;
-      flex-direction:column;
-      padding: env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left);
-      box-sizing:border-box;
-      position: relative;
+    .opt:active{ background: rgba(255,255,255,.10); transform: scale(0.99); }
+    .opt.selected{
+      outline: 2px solid rgba(255,255,255,.65);
+      background: rgba(255,255,255,.10);
+    }
+    .opt .name{
+      font-weight:900;
+      font-size:14px;
+      line-height:1.2;
+    }
+    .opt .tag{
+      font-size:12px;
+      color: var(--muted);
+      font-weight:800;
     }
 
-    #rotateOverlay{
-      position:fixed;
-      inset:0;
-      background:#000;
-      color:#fff;
-      display:none;
-      align-items:center;
-      justify-content:center;
-      text-align:center;
-      padding:24px;
-      z-index:50;
-      box-sizing:border-box;
-    }
-    #rotateOverlay h1{ margin:0 0 8px 0; font-size:28px; letter-spacing:.5px; }
-    #rotateOverlay p{ margin:0; color:var(--muted); font-size:18px; line-height:1.35; }
-    @media (orientation: portrait){
-      #rotateOverlay{ display:flex; }
-    }
-
-    .center{
-      flex:1;
+    /* Preview / Pantalla derecha */
+    .preview{
+      background: rgba(255,255,255,.04);
+      border-radius: var(--radius);
+      padding:14px;
+      min-height:0;
       display:flex;
       flex-direction:column;
-      align-items:center;
-      justify-content:center;
-      gap:18px;
-      padding:18px;
-      box-sizing:border-box;
+      gap:12px;
+      overflow:hidden;
     }
-    .controlsRow{
+
+    .previewHeader{
       display:flex;
-      gap:14px;
-      width:min(900px, 92vw);
-      justify-content:center;
-      align-items:center;
-      flex-wrap:nowrap;
+      align-items:flex-start;
+      justify-content:space-between;
+      gap:10px;
     }
-    button{
-      appearance:none;
-      border:1px solid var(--border);
-      background:var(--btn);
-      color:var(--fg);
-      padding:14px 18px;
-      border-radius:14px;
-      font-size:18px;
-      letter-spacing:.3px;
-      cursor:pointer;
-      min-width:170px;
+
+    .picked{
+      display:flex;
+      flex-direction:column;
+      gap:4px;
+      min-width:0;
     }
-    button:hover{ background:var(--btnHover); }
-    button:active{ transform:translateY(1px); }
-    button.small{
-      min-width:auto;
-      padding:10px 14px;
+    .picked .label{
+      font-size:12px;
+      color:var(--muted);
+      font-weight:800;
+    }
+    .picked .value{
       font-size:16px;
-      border-radius:12px;
-    }
-    button.danger{
-      background:var(--danger);
-      border-color: rgba(255,80,80,.45);
-    }
-
-    #resetFloating{
-      position:absolute;
-      top:14px;
-      right:14px;
-      z-index:10;
+      font-weight:900;
+      white-space:nowrap;
+      overflow:hidden;
+      text-overflow:ellipsis;
     }
 
-    #modalBackdrop{
-      position:fixed;
-      inset:0;
-      background:rgba(0,0,0,.6);
-      display:none;
+    /* Contenedor 3:2 (equivalente 1800x1200) - SIN BORDE */
+    .imgStage{
+      flex:1;
+      min-height:0;
+      display:flex;
       align-items:center;
       justify-content:center;
-      padding:18px;
-      box-sizing:border-box;
-      z-index:40;
+      background: transparent; /* sin recuadro */
+      border: none;
+      border-radius: 0;
+      box-shadow: none;
+      overflow:hidden;
     }
-    #modalBackdrop.show{ display:flex; }
-    #modal{
-      width:min(520px, 92vw);
-      border:1px solid var(--border);
-      border-radius:16px;
-      background:#000;
-      padding:18px;
-      box-sizing:border-box;
+
+    .imgBox{
+      width:100%;
+      max-height:100%;
+      aspect-ratio: 3 / 2;     /* 1800x1200 */
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      background: transparent;
     }
-    #modal h2{ margin:0 0 10px 0; font-size:22px; letter-spacing:.2px; }
-    #modal p{ margin:0 0 16px 0; color:var(--muted); font-size:16px; line-height:1.35; }
-    #modal .modalRow{ display:flex; justify-content:flex-end; gap:10px; }
+
+    img.advImg{
+      width:100%;
+      height:100%;
+      object-fit: contain;
+      display:none; /* se prende solo si hay imagen */
+      border:none;
+      outline:none;
+      box-shadow:none;
+      background: transparent;
+    }
+
+    .noImg{
+      color: var(--muted);
+      font-weight:900;
+      font-size:13px;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      width:100%;
+      height:100%;
+    }
+
+    .bottomBar{
+      display:flex;
+      gap:10px;
+      justify-content:flex-end;
+      align-items:center;
+      padding-top:2px;
+    }
+
+    .btn-primary{
+      background: rgba(255,255,255,.12);
+      border: 2px solid rgba(255,255,255,.22);
+    }
+    .btn-primary:active{
+      background: rgba(255,255,255,.18);
+    }
+
+    /* Pantallas */
+    .screen{ display:none; height:100%; min-height:0; }
+    .screen.active{ display:flex; flex-direction:column; min-height:0; }
+
+    /* NIVEL */
+    .levelTitle{
+      font-size:22px;
+      font-weight:1000;
+      letter-spacing:.4px;
+    }
+
+    @media (min-width: 900px){
+      .title{ font-size:22px; }
+      button{ font-size:15px; padding:11px 16px; }
+      .opt .name{ font-size:15px; }
+      .picked .value{ font-size:17px; }
+      .levelTitle{ font-size:26px; }
+    }
   </style>
 </head>
 
 <body>
-  <div id="rotateOverlay">
-    <div>
-      <h1>Rotate iPad</h1>
-      <p>Please use landscape mode.</p>
-    </div>
-  </div>
-
-  
-  <div id="modalBackdrop" aria-hidden="true">
-    <div id="modal" role="dialog" aria-modal="true">
-      <h2>Resetear?</h2>
-      <div class="modalRow">
-        <button id="btnCancelReset" class="small">CANCELAR</button>
-        <button id="btnConfirmReset" class="small danger">RESETEAR</button>
+  <div class="wrap">
+    <div class="topbar">
+      <div class="title" id="topTitle">ADVERSARIO</div>
+      <div class="actions">
+        <button class="btn-danger" id="btnReset">Reset</button>
+        <button id="btnBackTop">Back</button>
       </div>
     </div>
-  </div>
 
+    <div class="content">
+      <!-- IZQUIERDA: solo se muestra en pantalla ADVERSARIO -->
+      <div class="panel" id="leftPanel">
+        <div class="hint">
+          Elegí un adversario o usá Random. “Sin adversario” no muestra imagen.
+        </div>
 
-  <div id="app">
-    <div id="resetFloating">
-      <button id="btnReset" class="small danger">RESET</button>
-    </div>
+        <div class="panelButtons">
+          <button id="btnRandom">Random</button>
+          <button id="btnClear">Sin adversario</button>
+        </div>
 
-    <div class="center">
-      <div class="controlsRow">
-        <button id="btnBack">BACK</button>
+        <div class="grid" id="optionsGrid"></div>
+      </div>
+
+      <!-- DERECHA: Preview + NIVEL (mismo panel, pantallas internas) -->
+      <div class="preview">
+        <!-- SCREEN: ADVERSARIO -->
+        <div class="screen active" id="screenAdv">
+          <div class="previewHeader">
+            <div class="picked">
+              <div class="label">Elegido</div>
+              <div class="value" id="pickedName">Sin adversario</div>
+            </div>
+          </div>
+
+          <div class="imgStage">
+            <div class="imgBox">
+              <div class="noImg" id="noImgAdv">Sin imagen</div>
+              <img class="advImg" id="advImgAdv" alt="Adversario" />
+            </div>
+          </div>
+
+          <div class="bottomBar">
+            <button class="btn-primary" id="btnContinue">Continuar</button>
+          </div>
+        </div>
+
+        <!-- SCREEN: NIVEL -->
+        <div class="screen" id="screenLevel">
+          <div class="previewHeader">
+            <div class="picked">
+              <div class="label">Pantalla</div>
+              <div class="levelTitle">NIVEL</div>
+            </div>
+          </div>
+
+          <div class="imgStage">
+            <div class="imgBox">
+              <div class="noImg" id="noImgLevel">Sin imagen</div>
+              <img class="advImg" id="advImgLevel" alt="Adversario" />
+            </div>
+          </div>
+
+          <div class="bottomBar">
+            <button id="btnBackToAdv">Volver</button>
+          </div>
+        </div>
       </div>
     </div>
   </div>
 
   <script>
-    // BACK: vuelve a la pantalla de randomizer dentro del index (y ahora sí mantiene estado por localStorage)
-    document.getElementById("btnBack").addEventListener("click", () => {
-      window.location.href = "./index.html#randomizer";
-    });
+    /***********************
+     * Persistencia (CLAVE)
+     ***********************/
+    const LS_KEYS = {
+      adversaryId:   "si_adversary_id",
+      adversaryLabel:"si_adversary_label",
+      adversaryPng:  "si_adversary_png",
+      level:         "si_level"
+    };
 
-    // RESET: 2 clicks y vuelve al inicio del index (el index borra el estado cuando confirmás reset)
-    const modalBackdrop = document.getElementById("modalBackdrop");
-    const btnCancelReset = document.getElementById("btnCancelReset");
-    const btnConfirmReset = document.getElementById("btnConfirmReset");
+    /***********************
+     * Config: PNG exactos (sin inventar)
+     ***********************/
+    // Si los PNG están en carpeta, por ejemplo "img/adversaries/",
+    // cambiá IMG_BASE a: "img/adversaries/"
+    const IMG_BASE = "";
 
-    function openResetModal(){
-      modalBackdrop.classList.add("show");
-      modalBackdrop.setAttribute("aria-hidden","false");
+    const ADVERSARIES = [
+      { id:"none",     label:"Sin adversario", png:"" },
+      { id:"suecia",   label:"Suecia",         png:"Suecia.png" },
+      { id:"russia",   label:"Russia",         png:"Russia.png" },
+      { id:"prussia",  label:"Prussia",        png:"Prussia.png" },
+      { id:"inglaterra", label:"Inglaterra",   png:"Inglaterra.png" },
+      { id:"habsburg", label:"Habsburg",       png:"Habsburg.png" },
+      { id:"habsburg-minas", label:"Habsburg minas", png:"Habsburg minas.png" },
+      { id:"francia",  label:"Francia",        png:"Francia.png" },
+      { id:"escocia",  label:"Escocia",        png:"Escocia.png" }
+    ];
+
+    /***********************
+     * Helpers
+     ***********************/
+    const $ = (sel) => document.querySelector(sel);
+
+    function haptic(){
+      try{ if(navigator.vibrate) navigator.vibrate(10); }catch(e){}
     }
-    function closeResetModal(){
-      modalBackdrop.classList.remove("show");
-      modalBackdrop.setAttribute("aria-hidden","true");
+
+    function setImg(imgEl, noEl, png){
+      const src = png ? (IMG_BASE + png) : "";
+      if(!src){
+        imgEl.style.display = "none";
+        imgEl.src = "";
+        noEl.style.display = "flex";
+        return;
+      }
+      noEl.style.display = "none";
+      imgEl.style.display = "block";
+      imgEl.src = src;
     }
 
-    document.getElementById("btnReset").addEventListener("click", openResetModal);
-    btnCancelReset.addEventListener("click", closeResetModal);
-    btnConfirmReset.addEventListener("click", () => {
-      closeResetModal();
-      window.location.href = "./index.html";
+    function showScreen(which){
+      const adv = $("#screenAdv");
+      const lvl = $("#screenLevel");
+      const left = $("#leftPanel");
+      const title = $("#topTitle");
+
+      if(which === "level"){
+        adv.classList.remove("active");
+        lvl.classList.add("active");
+        left.style.display = "none";
+        title.textContent = "NIVEL";
+      }else{
+        lvl.classList.remove("active");
+        adv.classList.add("active");
+        left.style.display = "flex";
+        title.textContent = "ADVERSARIO";
+      }
+    }
+
+    /***********************
+     * Estado
+     ***********************/
+    let selected = ADVERSARIES[0]; // default: none
+
+    /***********************
+     * Render opciones
+     ***********************/
+    function renderOptions(){
+      const grid = $("#optionsGrid");
+      grid.innerHTML = "";
+
+      ADVERSARIES
+        .filter(a => a.id !== "none")
+        .forEach(a => {
+          const div = document.createElement("div");
+          div.className = "opt";
+          div.dataset.id = a.id;
+
+          const left = document.createElement("div");
+          left.className = "name";
+          left.textContent = a.label;
+
+          const right = document.createElement("div");
+          right.className = "tag";
+          right.textContent = "PNG";
+
+          div.appendChild(left);
+          div.appendChild(right);
+
+          div.addEventListener("click", () => {
+            haptic();
+            pickAdversary(a.id);
+          });
+
+          grid.appendChild(div);
+        });
+
+      refreshSelectedUI();
+    }
+
+    function refreshSelectedUI(){
+      // highlight
+      document.querySelectorAll(".opt").forEach(el => {
+        el.classList.toggle("selected", el.dataset.id === selected.id);
+      });
+
+      // label
+      $("#pickedName").textContent = (selected.id === "none") ? "Sin adversario" : selected.label;
+
+      // images (ambas pantallas)
+      setImg($("#advImgAdv"), $("#noImgAdv"), selected.png);
+      setImg($("#advImgLevel"), $("#noImgLevel"), selected.png);
+    }
+
+    /***********************
+     * Pick + persist
+     ***********************/
+    function pickAdversary(id){
+      const adv = ADVERSARIES.find(a => a.id === id) || ADVERSARIES[0];
+      selected = adv;
+      persist();
+      refreshSelectedUI();
+    }
+
+    function persist(){
+      localStorage.setItem(LS_KEYS.adversaryId, selected.id);
+      localStorage.setItem(LS_KEYS.adversaryLabel, selected.label);
+      localStorage.setItem(LS_KEYS.adversaryPng, selected.png);
+      // nivel queda para después; no lo tocamos acá
+    }
+
+    function loadPersisted(){
+      const id = localStorage.getItem(LS_KEYS.adversaryId);
+      if(id){
+        const adv = ADVERSARIES.find(a => a.id === id);
+        if(adv) selected = adv;
+      }else{
+        selected = ADVERSARIES[0];
+      }
+    }
+
+    /***********************
+     * Random loop (incluye sin adversario)
+     ***********************/
+    function randomPick(){
+      const idx = Math.floor(Math.random() * ADVERSARIES.length);
+      pickAdversary(ADVERSARIES[idx].id);
+    }
+
+    /***********************
+     * Reset
+     ***********************/
+    function doReset(){
+      localStorage.removeItem(LS_KEYS.adversaryId);
+      localStorage.removeItem(LS_KEYS.adversaryLabel);
+      localStorage.removeItem(LS_KEYS.adversaryPng);
+      localStorage.removeItem(LS_KEYS.level);
+      selected = ADVERSARIES[0];
+      refreshSelectedUI();
+      showScreen("adv");
+    }
+
+    /***********************
+     * Eventos UI
+     ***********************/
+    $("#btnRandom").addEventListener("click", () => { haptic(); randomPick(); });
+    $("#btnClear").addEventListener("click",  () => { haptic(); pickAdversary("none"); });
+
+    $("#btnContinue").addEventListener("click", () => {
+      haptic();
+      persist();          // por las dudas
+      showScreen("level");
     });
-    modalBackdrop.addEventListener("click", (e) => {
-      if(e.target === modalBackdrop) closeResetModal();
+
+    $("#btnBackToAdv").addEventListener("click", () => {
+      haptic();
+      showScreen("adv");
     });
+
+    // Back superior:
+    // - si estás en NIVEL, vuelve a ADVERSARIO
+    // - si estás en ADVERSARIO, vuelve a index.html
+    $("#btnBackTop").addEventListener("click", () => {
+      haptic();
+      if($("#screenLevel").classList.contains("active")){
+        showScreen("adv");
+      }else{
+        window.location.href = "index.html";
+      }
+    });
+
+    $("#btnReset").addEventListener("click", () => {
+      haptic();
+      const ok = confirm("Resetear?");
+      if(ok) doReset();
+    });
+
+    // Si falta un PNG, no rompas
+    $("#advImgAdv").addEventListener("error", () => {
+      $("#advImgAdv").style.display = "none";
+      $("#noImgAdv").style.display = "flex";
+    });
+    $("#advImgLevel").addEventListener("error", () => {
+      $("#advImgLevel").style.display = "none";
+      $("#noImgLevel").style.display = "flex";
+    });
+
+    /***********************
+     * Init
+     ***********************/
+    loadPersisted();
+    renderOptions();
+    refreshSelectedUI();
   </script>
 </body>
 </html>
