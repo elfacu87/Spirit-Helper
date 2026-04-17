@@ -11,18 +11,16 @@
       --muted:#9aa0a6;
       --btn:#161616;
       --btn2:#232323;
-      --danger:#ff3b30;
-      --radius:18px;
     }
 
     *{ box-sizing:border-box; -webkit-tap-highlight-color: transparent; }
-    html, body{ height:100%; }
+    html,body{ height:100%; }
     body{
       margin:0;
       background:var(--bg);
       color:var(--fg);
       font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
-      overflow:hidden; /* sin scroll global */
+      overflow:hidden;
     }
 
     .wrap{
@@ -30,350 +28,212 @@
       padding:16px 18px calc(16px + env(safe-area-inset-bottom));
       display:flex;
       flex-direction:column;
-      gap:14px;
-    }
-
-    .topbar{
-      display:flex;
-      align-items:center;
-      justify-content:space-between;
       gap:12px;
     }
 
     .title{
-      font-size:20px;
+      text-align:center;
+      font-size:22px;
+      font-weight:1000;
+      letter-spacing:.6px;
+      margin-top:2px;
+    }
+
+    .stage{
+      flex:1;
+      min-height:0;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      position:relative;
+      user-select:none;
+      touch-action: pan-y; /* para que el swipe horizontal funcione bien */
+    }
+
+    /* Marco 3:2 (equivalente 1800x1200) SIN BORDE */
+    .imgBox{
+      width:min(92vw, 1100px);
+      max-height:72vh;
+      aspect-ratio: 3 / 2;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      background:transparent;
+      overflow:hidden;
+    }
+
+    img{
+      width:100%;
+      height:100%;
+      object-fit: contain;
+      display:none;
+      border:none;
+      outline:none;
+      box-shadow:none;
+      background:transparent;
+      pointer-events:none;
+    }
+
+    .noImg{
+      width:100%;
+      height:100%;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      color:var(--muted);
       font-weight:900;
+      font-size:14px;
       letter-spacing:.2px;
     }
 
-    .actions{
+    .name{
+      text-align:center;
+      font-weight:950;
+      font-size:18px;
+      margin-top:6px;
+      min-height:24px;
+    }
+
+    .bottom{
       display:flex;
       gap:10px;
+      justify-content:space-between;
       align-items:center;
     }
 
     button{
+      flex:1;
       border:0;
       color:var(--fg);
       background:var(--btn);
-      padding:10px 14px;
-      border-radius:14px;
-      font-weight:800;
-      font-size:14px;
+      padding:14px 10px;
+      border-radius:16px;
+      font-weight:900;
+      font-size:15px;
+      letter-spacing:.3px;
       cursor:pointer;
     }
-    button:active{ transform: scale(0.98); background:var(--btn2); }
+    button:active{ transform:scale(0.98); background:var(--btn2); }
 
-    .btn-danger{
-      background: transparent;
-      color: var(--danger);
-      border: 2px solid rgba(255,59,48,.55);
-    }
-    .btn-danger:active{
-      background: rgba(255,59,48,.12);
-    }
+    .screen{ display:none; height:100%; }
+    .screen.active{ display:flex; flex-direction:column; height:100%; }
 
-    .content{
-      flex:1;
-      min-height:0;
-      display:grid;
-      grid-template-columns: 1.05fr .95fr;
-      gap:16px;
-    }
-
-    /* Panel lista */
-    .panel{
-      background: rgba(255,255,255,.04);
-      border-radius: var(--radius);
-      padding:14px;
-      min-height:0;
-      display:flex;
-      flex-direction:column;
-      gap:12px;
-      overflow:hidden;
-    }
-
-    .hint{
-      font-size:12px;
-      color:var(--muted);
-      line-height:1.25;
-      font-weight:700;
-    }
-
-    .panelButtons{
-      display:flex;
-      gap:10px;
-      flex-wrap:wrap;
-    }
-
-    .grid{
-      display:grid;
-      grid-template-columns: 1fr 1fr;
-      gap:10px;
-      overflow:auto;               /* scroll interno si hiciera falta */
-      padding-right:4px;
-      -webkit-overflow-scrolling: touch;
-    }
-
-    .opt{
-      background: rgba(255,255,255,.06);
-      border-radius: 16px;
-      padding:12px 12px;
-      display:flex;
-      align-items:center;
-      justify-content:space-between;
-      gap:10px;
-      user-select:none;
-    }
-    .opt:active{ background: rgba(255,255,255,.10); transform: scale(0.99); }
-    .opt.selected{
-      outline: 2px solid rgba(255,255,255,.65);
-      background: rgba(255,255,255,.10);
-    }
-    .opt .name{
-      font-weight:900;
-      font-size:14px;
-      line-height:1.2;
-    }
-    .opt .tag{
-      font-size:12px;
-      color: var(--muted);
-      font-weight:800;
-    }
-
-    /* Preview / Pantalla derecha */
-    .preview{
-      background: rgba(255,255,255,.04);
-      border-radius: var(--radius);
-      padding:14px;
-      min-height:0;
-      display:flex;
-      flex-direction:column;
-      gap:12px;
-      overflow:hidden;
-    }
-
-    .previewHeader{
-      display:flex;
-      align-items:flex-start;
-      justify-content:space-between;
-      gap:10px;
-    }
-
-    .picked{
-      display:flex;
-      flex-direction:column;
-      gap:4px;
-      min-width:0;
-    }
-    .picked .label{
-      font-size:12px;
-      color:var(--muted);
-      font-weight:800;
-    }
-    .picked .value{
-      font-size:16px;
-      font-weight:900;
-      white-space:nowrap;
-      overflow:hidden;
-      text-overflow:ellipsis;
-    }
-
-    /* Contenedor 3:2 (equivalente 1800x1200) - SIN BORDE */
-    .imgStage{
-      flex:1;
-      min-height:0;
-      display:flex;
-      align-items:center;
-      justify-content:center;
-      background: transparent; /* sin recuadro */
-      border: none;
-      border-radius: 0;
-      box-shadow: none;
-      overflow:hidden;
-    }
-
-    .imgBox{
-      width:100%;
-      max-height:100%;
-      aspect-ratio: 3 / 2;     /* 1800x1200 */
-      display:flex;
-      align-items:center;
-      justify-content:center;
-      background: transparent;
-    }
-
-    img.advImg{
-      width:100%;
-      height:100%;
-      object-fit: contain;
-      display:none; /* se prende solo si hay imagen */
-      border:none;
-      outline:none;
-      box-shadow:none;
-      background: transparent;
-    }
-
-    .noImg{
-      color: var(--muted);
-      font-weight:900;
-      font-size:13px;
-      display:flex;
-      align-items:center;
-      justify-content:center;
-      width:100%;
-      height:100%;
-    }
-
-    .bottomBar{
-      display:flex;
-      gap:10px;
-      justify-content:flex-end;
-      align-items:center;
-      padding-top:2px;
-    }
-
-    .btn-primary{
-      background: rgba(255,255,255,.12);
-      border: 2px solid rgba(255,255,255,.22);
-    }
-    .btn-primary:active{
-      background: rgba(255,255,255,.18);
-    }
-
-    /* Pantallas */
-    .screen{ display:none; height:100%; min-height:0; }
-    .screen.active{ display:flex; flex-direction:column; min-height:0; }
-
-    /* NIVEL */
-    .levelTitle{
+    .subtitle{
+      text-align:center;
       font-size:22px;
       font-weight:1000;
-      letter-spacing:.4px;
+      letter-spacing:.6px;
+      margin-top:2px;
     }
 
     @media (min-width: 900px){
-      .title{ font-size:22px; }
-      button{ font-size:15px; padding:11px 16px; }
-      .opt .name{ font-size:15px; }
-      .picked .value{ font-size:17px; }
-      .levelTitle{ font-size:26px; }
+      .title,.subtitle{ font-size:26px; }
+      .name{ font-size:20px; }
+      button{ font-size:16px; padding:16px 10px; }
     }
   </style>
 </head>
 
 <body>
   <div class="wrap">
-    <div class="topbar">
-      <div class="title" id="topTitle">ADVERSARIO</div>
-      <div class="actions">
-        <button class="btn-danger" id="btnReset">Reset</button>
-        <button id="btnBackTop">Back</button>
+
+    <!-- SCREEN 1: ADVERSARIO -->
+    <div class="screen active" id="screenAdv">
+      <div class="title">ADVERSARIO</div>
+
+      <div class="stage" id="swipeArea" aria-label="Swipe de adversarios">
+        <div style="display:flex; flex-direction:column; align-items:center; width:100%;">
+          <div class="imgBox">
+            <div class="noImg" id="noImgAdv">Sin imagen</div>
+            <img id="imgAdv" alt="Adversario" />
+          </div>
+          <div class="name" id="nameAdv">Sin adversario</div>
+        </div>
+      </div>
+
+      <div class="bottom">
+        <button id="btnBack">BACK</button>
+        <button id="btnRandom">RANDOM</button>
+        <button id="btnContinue">CONTINUAR</button>
       </div>
     </div>
 
-    <div class="content">
-      <!-- IZQUIERDA: solo se muestra en pantalla ADVERSARIO -->
-      <div class="panel" id="leftPanel">
-        <div class="hint">
-          Elegí un adversario o usá Random. “Sin adversario” no muestra imagen.
-        </div>
+    <!-- SCREEN 2: NIVEL (por ahora solo título + foto) -->
+    <div class="screen" id="screenLevel">
+      <div class="subtitle">NIVEL</div>
 
-        <div class="panelButtons">
-          <button id="btnRandom">Random</button>
-          <button id="btnClear">Sin adversario</button>
+      <div class="stage">
+        <div style="display:flex; flex-direction:column; align-items:center; width:100%;">
+          <div class="imgBox">
+            <div class="noImg" id="noImgLevel">Sin imagen</div>
+            <img id="imgLevel" alt="Adversario" />
+          </div>
+          <div class="name" id="nameLevel">Sin adversario</div>
         </div>
-
-        <div class="grid" id="optionsGrid"></div>
       </div>
 
-      <!-- DERECHA: Preview + NIVEL (mismo panel, pantallas internas) -->
-      <div class="preview">
-        <!-- SCREEN: ADVERSARIO -->
-        <div class="screen active" id="screenAdv">
-          <div class="previewHeader">
-            <div class="picked">
-              <div class="label">Elegido</div>
-              <div class="value" id="pickedName">Sin adversario</div>
-            </div>
-          </div>
-
-          <div class="imgStage">
-            <div class="imgBox">
-              <div class="noImg" id="noImgAdv">Sin imagen</div>
-              <img class="advImg" id="advImgAdv" alt="Adversario" />
-            </div>
-          </div>
-
-          <div class="bottomBar">
-            <button class="btn-primary" id="btnContinue">Continuar</button>
-          </div>
-        </div>
-
-        <!-- SCREEN: NIVEL -->
-        <div class="screen" id="screenLevel">
-          <div class="previewHeader">
-            <div class="picked">
-              <div class="label">Pantalla</div>
-              <div class="levelTitle">NIVEL</div>
-            </div>
-          </div>
-
-          <div class="imgStage">
-            <div class="imgBox">
-              <div class="noImg" id="noImgLevel">Sin imagen</div>
-              <img class="advImg" id="advImgLevel" alt="Adversario" />
-            </div>
-          </div>
-
-          <div class="bottomBar">
-            <button id="btnBackToAdv">Volver</button>
-          </div>
-        </div>
+      <div class="bottom">
+        <button id="btnBackFromLevel">BACK</button>
+        <button id="btnRandomDisabled" disabled style="opacity:.35;">RANDOM</button>
+        <button id="btnContinueDisabled" disabled style="opacity:.35;">CONTINUAR</button>
       </div>
     </div>
+
   </div>
 
   <script>
     /***********************
-     * Persistencia (CLAVE)
+     * Persistencia
      ***********************/
     const LS_KEYS = {
-      adversaryId:   "si_adversary_id",
-      adversaryLabel:"si_adversary_label",
-      adversaryPng:  "si_adversary_png",
-      level:         "si_level"
+      adversaryIndex: "si_adversary_index",
+      adversaryId:    "si_adversary_id",
+      adversaryLabel: "si_adversary_label",
+      adversaryPng:   "si_adversary_png",
+      level:          "si_level"
     };
 
     /***********************
-     * Config: PNG exactos (sin inventar)
+     * PNG exactos + ORDEN exacto pedido
      ***********************/
-    // Si los PNG están en carpeta, por ejemplo "img/adversaries/",
-    // cambiá IMG_BASE a: "img/adversaries/"
-    const IMG_BASE = "";
+    const IMG_BASE = ""; // si están en carpeta: "img/"
 
     const ADVERSARIES = [
-      { id:"none",     label:"Sin adversario", png:"" },
-      { id:"suecia",   label:"Suecia",         png:"Suecia.png" },
-      { id:"russia",   label:"Russia",         png:"Russia.png" },
-      { id:"prussia",  label:"Prussia",        png:"Prussia.png" },
-      { id:"inglaterra", label:"Inglaterra",   png:"Inglaterra.png" },
-      { id:"habsburg", label:"Habsburg",       png:"Habsburg.png" },
-      { id:"habsburg-minas", label:"Habsburg minas", png:"Habsburg minas.png" },
-      { id:"francia",  label:"Francia",        png:"Francia.png" },
-      { id:"escocia",  label:"Escocia",        png:"Escocia.png" }
+      { id:"none",           label:"Sin adversario",  png:"" },
+      { id:"prussia",        label:"Prussia",         png:"Prussia.png" },
+      { id:"suecia",         label:"Suecia",          png:"Suecia.png" },
+      { id:"inglaterra",     label:"Inglaterra",      png:"Inglaterra.png" },
+      { id:"francia",        label:"Francia",         png:"Francia.png" },
+      { id:"escocia",        label:"Escocia",         png:"Escocia.png" },
+      { id:"habsburg",       label:"Habsburg",        png:"Habsburg.png" },
+      { id:"russia",         label:"Russia",          png:"Russia.png" },
+      { id:"habsburg-minas", label:"Habsburg minas",  png:"Habsburg minas.png" }
     ];
 
     /***********************
      * Helpers
      ***********************/
-    const $ = (sel) => document.querySelector(sel);
+    const $ = (s) => document.querySelector(s);
 
     function haptic(){
       try{ if(navigator.vibrate) navigator.vibrate(10); }catch(e){}
     }
 
-    function setImg(imgEl, noEl, png){
+    function clampIndex(i){
+      const n = ADVERSARIES.length;
+      return ((i % n) + n) % n; // infinito
+    }
+
+    function persistCurrent(){
+      const adv = ADVERSARIES[state.index];
+      localStorage.setItem(LS_KEYS.adversaryIndex, String(state.index));
+      localStorage.setItem(LS_KEYS.adversaryId, adv.id);
+      localStorage.setItem(LS_KEYS.adversaryLabel, adv.label);
+      localStorage.setItem(LS_KEYS.adversaryPng, adv.png);
+      // level queda para después
+    }
+
+    function setImage(imgEl, noEl, png){
       const src = png ? (IMG_BASE + png) : "";
       if(!src){
         imgEl.style.display = "none";
@@ -386,179 +246,132 @@
       imgEl.src = src;
     }
 
+    function render(){
+      const adv = ADVERSARIES[state.index];
+
+      $("#nameAdv").textContent = adv.label;
+      setImage($("#imgAdv"), $("#noImgAdv"), adv.png);
+
+      $("#nameLevel").textContent = adv.label;
+      setImage($("#imgLevel"), $("#noImgLevel"), adv.png);
+
+      persistCurrent();
+    }
+
+    function go(delta){
+      state.index = clampIndex(state.index + delta);
+      render();
+    }
+
     function showScreen(which){
       const adv = $("#screenAdv");
       const lvl = $("#screenLevel");
-      const left = $("#leftPanel");
-      const title = $("#topTitle");
-
       if(which === "level"){
         adv.classList.remove("active");
         lvl.classList.add("active");
-        left.style.display = "none";
-        title.textContent = "NIVEL";
       }else{
         lvl.classList.remove("active");
         adv.classList.add("active");
-        left.style.display = "flex";
-        title.textContent = "ADVERSARIO";
       }
     }
 
-    /***********************
-     * Estado
-     ***********************/
-    let selected = ADVERSARIES[0]; // default: none
-
-    /***********************
-     * Render opciones
-     ***********************/
-    function renderOptions(){
-      const grid = $("#optionsGrid");
-      grid.innerHTML = "";
-
-      ADVERSARIES
-        .filter(a => a.id !== "none")
-        .forEach(a => {
-          const div = document.createElement("div");
-          div.className = "opt";
-          div.dataset.id = a.id;
-
-          const left = document.createElement("div");
-          left.className = "name";
-          left.textContent = a.label;
-
-          const right = document.createElement("div");
-          right.className = "tag";
-          right.textContent = "PNG";
-
-          div.appendChild(left);
-          div.appendChild(right);
-
-          div.addEventListener("click", () => {
-            haptic();
-            pickAdversary(a.id);
-          });
-
-          grid.appendChild(div);
-        });
-
-      refreshSelectedUI();
-    }
-
-    function refreshSelectedUI(){
-      // highlight
-      document.querySelectorAll(".opt").forEach(el => {
-        el.classList.toggle("selected", el.dataset.id === selected.id);
-      });
-
-      // label
-      $("#pickedName").textContent = (selected.id === "none") ? "Sin adversario" : selected.label;
-
-      // images (ambas pantallas)
-      setImg($("#advImgAdv"), $("#noImgAdv"), selected.png);
-      setImg($("#advImgLevel"), $("#noImgLevel"), selected.png);
-    }
-
-    /***********************
-     * Pick + persist
-     ***********************/
-    function pickAdversary(id){
-      const adv = ADVERSARIES.find(a => a.id === id) || ADVERSARIES[0];
-      selected = adv;
-      persist();
-      refreshSelectedUI();
-    }
-
-    function persist(){
-      localStorage.setItem(LS_KEYS.adversaryId, selected.id);
-      localStorage.setItem(LS_KEYS.adversaryLabel, selected.label);
-      localStorage.setItem(LS_KEYS.adversaryPng, selected.png);
-      // nivel queda para después; no lo tocamos acá
-    }
-
-    function loadPersisted(){
-      const id = localStorage.getItem(LS_KEYS.adversaryId);
-      if(id){
-        const adv = ADVERSARIES.find(a => a.id === id);
-        if(adv) selected = adv;
-      }else{
-        selected = ADVERSARIES[0];
-      }
-    }
-
-    /***********************
-     * Random loop (incluye sin adversario)
-     ***********************/
     function randomPick(){
-      const idx = Math.floor(Math.random() * ADVERSARIES.length);
-      pickAdversary(ADVERSARIES[idx].id);
+      const n = ADVERSARIES.length;
+      let r = Math.floor(Math.random() * n);
+      if(n > 1 && r === state.index) r = (r + 1) % n; // evita repetición inmediata
+      state.index = r;
+      render();
     }
 
     /***********************
-     * Reset
+     * Estado + restore
      ***********************/
-    function doReset(){
-      localStorage.removeItem(LS_KEYS.adversaryId);
-      localStorage.removeItem(LS_KEYS.adversaryLabel);
-      localStorage.removeItem(LS_KEYS.adversaryPng);
-      localStorage.removeItem(LS_KEYS.level);
-      selected = ADVERSARIES[0];
-      refreshSelectedUI();
-      showScreen("adv");
-    }
+    const state = {
+      index: 0,
+      dragging: false,
+      startX: 0,
+      lastX: 0
+    };
+
+    (function init(){
+      const saved = localStorage.getItem(LS_KEYS.adversaryIndex);
+      if(saved !== null && !Number.isNaN(Number(saved))){
+        state.index = clampIndex(Number(saved));
+      }else{
+        state.index = 0; // arranca en Sin adversario
+      }
+      render();
+    })();
 
     /***********************
-     * Eventos UI
+     * Swipe infinito
      ***********************/
-    $("#btnRandom").addEventListener("click", () => { haptic(); randomPick(); });
-    $("#btnClear").addEventListener("click",  () => { haptic(); pickAdversary("none"); });
+    const swipeArea = $("#swipeArea");
+
+    swipeArea.addEventListener("pointerdown", (e) => {
+      state.dragging = true;
+      state.startX = e.clientX;
+      state.lastX = e.clientX;
+      swipeArea.setPointerCapture(e.pointerId);
+    });
+
+    swipeArea.addEventListener("pointermove", (e) => {
+      if(!state.dragging) return;
+      state.lastX = e.clientX;
+    });
+
+    function endSwipe(){
+      if(!state.dragging) return;
+      state.dragging = false;
+
+      const dx = state.lastX - state.startX;
+      const TH = 50;
+
+      if(Math.abs(dx) >= TH){
+        haptic();
+        if(dx < 0) go(+1);  // izquierda => siguiente
+        else go(-1);        // derecha => anterior
+      }
+    }
+
+    swipeArea.addEventListener("pointerup", endSwipe);
+    swipeArea.addEventListener("pointercancel", endSwipe);
+    swipeArea.addEventListener("pointerleave", endSwipe);
+
+    /***********************
+     * Botones
+     ***********************/
+    $("#btnBack").addEventListener("click", () => {
+      haptic();
+      // BACK -> randomizer de spirit boards
+      window.location.href = "index.html";
+    });
+
+    $("#btnRandom").addEventListener("click", () => {
+      haptic();
+      randomPick();
+    });
 
     $("#btnContinue").addEventListener("click", () => {
       haptic();
-      persist();          // por las dudas
+      persistCurrent();
       showScreen("level");
     });
 
-    $("#btnBackToAdv").addEventListener("click", () => {
+    $("#btnBackFromLevel").addEventListener("click", () => {
       haptic();
       showScreen("adv");
     });
 
-    // Back superior:
-    // - si estás en NIVEL, vuelve a ADVERSARIO
-    // - si estás en ADVERSARIO, vuelve a index.html
-    $("#btnBackTop").addEventListener("click", () => {
-      haptic();
-      if($("#screenLevel").classList.contains("active")){
-        showScreen("adv");
-      }else{
-        window.location.href = "index.html";
-      }
-    });
-
-    $("#btnReset").addEventListener("click", () => {
-      haptic();
-      const ok = confirm("Resetear?");
-      if(ok) doReset();
-    });
-
-    // Si falta un PNG, no rompas
-    $("#advImgAdv").addEventListener("error", () => {
-      $("#advImgAdv").style.display = "none";
+    // Si falta PNG, no rompe
+    $("#imgAdv").addEventListener("error", () => {
+      $("#imgAdv").style.display = "none";
       $("#noImgAdv").style.display = "flex";
     });
-    $("#advImgLevel").addEventListener("error", () => {
-      $("#advImgLevel").style.display = "none";
+    $("#imgLevel").addEventListener("error", () => {
+      $("#imgLevel").style.display = "none";
       $("#noImgLevel").style.display = "flex";
     });
-
-    /***********************
-     * Init
-     ***********************/
-    loadPersisted();
-    renderOptions();
-    refreshSelectedUI();
   </script>
 </body>
 </html>
